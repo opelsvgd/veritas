@@ -1,0 +1,307 @@
+REPLIT BUILD INSTRUCTION (USE AS-IS)
+Project Goal
+
+Build a licensed custodial crypto investment platform that supports real crypto deposits and withdrawals on a single blockchain, using:
+
+Frontend: Next.js (Vercel-ready)
+
+Backend: Node.js API (Render-ready)
+
+Database: Supabase (PostgreSQL + Auth)
+
+Blockchain: ONE chain only (configurable via env)
+
+Custody: EOA wallet controlled by backend (manual withdrawals only)
+
+This is NOT a simulation. Real blockchain transactions must be supported.
+
+1. Mandatory Project Structure
+
+Create a monorepo:
+
+/crypto-investment-platform
+  /frontend     → Next.js 14 (TypeScript, App Router)
+  /backend      → Node.js API (TypeScript)
+  /shared       → shared types & validation schemas
+  README.md
+  .env.example
+
+
+Frontend and backend MUST be fully separated.
+
+2. Frontend Requirements (Vercel-ready)
+Tech Stack
+
+Next.js 14 (App Router)
+
+TypeScript
+
+Tailwind CSS
+
+Supabase JS client
+
+wagmi + viem (wallet connection only)
+
+Features
+
+User authentication via Supabase Auth
+
+Wallet connect (MetaMask / WalletConnect)
+
+Display platform deposit address
+
+Dashboard:
+
+Available balance
+
+Locked balance
+
+Active investments
+
+Transaction history (with tx hashes)
+
+Investment creation (locks internal balance)
+
+Withdrawal request form (NO auto-withdraw)
+
+Rules
+
+Frontend NEVER signs withdrawals
+
+Frontend NEVER updates balances
+
+Frontend NEVER stores private keys
+
+All balances come from backend API
+
+Environment Variables
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_CHAIN_ID=
+NEXT_PUBLIC_DEPOSIT_ADDRESS=
+
+3. Backend Requirements (Render-ready)
+Tech Stack
+
+Node.js
+
+Express or NestJS
+
+TypeScript
+
+ethers or viem
+
+Supabase Admin SDK
+
+Zod (input validation)
+
+Role-based access control
+
+Environment Variables
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+RPC_URL=
+CHAIN_ID=
+DEPOSIT_WALLET_ADDRESS=
+DEPOSIT_WALLET_PRIVATE_KEY=
+CONFIRMATION_THRESHOLD=3
+PORT=
+
+
+⚠️ Private key MUST be read only from environment variables.
+
+4. Blockchain Responsibilities (REAL FUNDS)
+Deposit Handling (Automatic)
+
+Backend listens for incoming transactions to DEPOSIT_WALLET_ADDRESS
+
+Valid deposit only if:
+
+tx.to === deposit address
+
+tx.status === success
+
+confirmations ≥ threshold
+
+Backend credits user internal balance
+
+Save:
+
+tx hash
+
+block number
+
+amount
+
+chain id
+
+Withdrawal Handling (MANUAL)
+
+User submits withdrawal request
+
+Admin approves request
+
+Admin manually signs tx (or backend signs after admin approval)
+
+Backend records tx hash
+
+NO automatic withdrawals
+
+5. Supabase Database Schema (REQUIRED)
+
+Create migrations for:
+
+users
+id uuid primary key
+email text
+role text default 'user'
+created_at timestamp
+
+wallets
+id uuid primary key
+user_id uuid
+address text
+chain_id int
+
+balances
+user_id uuid primary key
+available numeric
+locked numeric
+
+investment_plans
+id uuid primary key
+name text
+roi_percentage numeric
+duration_days int
+
+investments
+id uuid primary key
+user_id uuid
+plan_id uuid
+amount numeric
+start_date timestamp
+end_date timestamp
+status text
+
+transactions
+id uuid primary key
+user_id uuid
+tx_hash text
+type text
+amount numeric
+status text
+chain_id int
+created_at timestamp
+
+withdrawal_requests
+id uuid primary key
+user_id uuid
+amount numeric
+to_address text
+status text
+created_at timestamp
+
+6. Security Rules (NON-NEGOTIABLE)
+
+Enable Supabase Row Level Security
+
+Users can only read their own records
+
+Backend is the ONLY writer for balances
+
+All blockchain txs verified backend-side
+
+Admin-only routes protected by role check
+
+Never log private keys
+
+Never expose service role key
+
+7. Investment Logic (REAL FUNDS, INTERNAL LEDGER)
+
+Deposits → available balance
+
+Investment → move funds from available → locked
+
+ROI → internal accounting only
+
+Blockchain funds move ONLY on:
+
+deposit
+
+withdrawal
+
+No smart contracts in this phase.
+
+8. Admin Features (Minimal)
+
+View deposits
+
+View balances
+
+Approve withdrawals
+
+Mark withdrawals as completed with tx hash
+
+Admin UI can be basic.
+
+9. Explicit Constraints
+
+❌ No smart contracts
+❌ No auto-withdrawals
+❌ No multi-chain
+❌ No frontend signing of withdrawals
+❌ No storing private keys in DB
+
+✅ Single-chain custody
+✅ Real blockchain transactions
+✅ Manual withdrawal control
+
+10. Output Expectations
+
+Replit must:
+
+Generate working code
+
+Include .env.example
+
+Include deployment instructions for:
+
+Render
+
+Vercel
+
+Supabase
+
+Include README with:
+
+Deposit flow
+
+Withdrawal flow
+
+Security assumptions
+
+Follow-Up Instruction (After Build)
+
+After building, run:
+
+“Audit this code for fund-loss risks and custody vulnerabilities.”
+
+If you want, next I can:
+
+Tighten this for Ethereum vs Polygon
+
+Add multi-sig roadmap
+
+Convert to NestJS-only
+
+Add automated deposit scanner
+
+Just say which one.
+
+Get smarter responses, upload files and images, and more.
+Log in
+Sign up for free
+
+ChatGPT is AI and
