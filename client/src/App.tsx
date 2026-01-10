@@ -36,6 +36,7 @@ function LandingPage() {
             <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">Features</Link>
             <Link href="#plans" className="text-sm font-medium hover:text-primary transition-colors">Plans</Link>
             <Link href="#testimonials" className="text-sm font-medium hover:text-primary transition-colors">Success Stories</Link>
+            <Link href="#contact" className="text-sm font-medium hover:text-primary transition-colors">Contact</Link>
           </nav>
           <div className="flex items-center gap-4">
             <Link href="/auth">
@@ -189,6 +190,45 @@ function LandingPage() {
                   </Card>
                 </motion.div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="py-20 bg-muted/30">
+          <div className="container px-4">
+            <div className="max-w-[800px] mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold tracking-tight mb-4">Get in Touch</h2>
+                <p className="text-muted-foreground">Have questions about our institutional crypto platform? Our support team is here to help.</p>
+              </div>
+              <Card className="bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-8">
+                  <form className="grid gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Name</label>
+                        <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Your name" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Email</label>
+                        <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="your@email.com" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Subject</label>
+                      <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="How can we help?" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Message</label>
+                      <textarea className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Your message..." />
+                    </div>
+                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 h-11">
+                      Send Message
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
