@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import cors from "cors";
 
 const app = express();
 const httpServer = createServer(app);
@@ -21,6 +22,12 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+
+// CORS setup for frontend
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "*", // Allow all in dev, set to Vercel URL in prod
+  credentials: true
+}));
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
