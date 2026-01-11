@@ -24,8 +24,20 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 // CORS setup for frontend
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://veritas-frontend.vercel.app", // Example Vercel URL
+  "http://localhost:5000"
+].filter(Boolean) as string[];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*", // Allow all in dev, set to Vercel URL in prod
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
