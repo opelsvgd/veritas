@@ -27,12 +27,14 @@ app.use(express.urlencoded({ extended: false }));
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   "https://veritas-frontend.vercel.app", // Example Vercel URL
-  "http://localhost:5000"
+  "http://localhost:5000",
+  "https://veritas-replit.replit.app" // Add Replit domain for testing
 ].filter(Boolean) as string[];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // In development or when no origin is provided (like local requests), allow it
+    if (!origin || process.env.NODE_ENV === "development" || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
