@@ -102,7 +102,9 @@ export const investmentsRelations = relations(investments, ({ one }) => ({
 
 // === SCHEMAS ===
 
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
+}).omit({ id: true, createdAt: true });
 export const insertWalletSchema = createInsertSchema(wallets).omit({ id: true, createdAt: true });
 export const insertBalanceSchema = createInsertSchema(balances).omit({ id: true });
 export const insertInvestmentPlanSchema = createInsertSchema(investmentPlans).omit({ id: true });
