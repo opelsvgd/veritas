@@ -285,6 +285,18 @@ function LandingPage() {
   );
 }
 
+import { Switch, Route, Link } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import NotFound from "@/pages/not-found";
+import { useQuery } from "@tanstack/react-query";
+import { User } from "@shared/schema";
+import Dashboard from "@/pages/dashboard";
+import AuthPage from "@/pages/auth";
+import { Navigation } from "@/components/Navigation";
+
 function Router() {
   const { data: user, isLoading } = useQuery<User | null>({
     queryKey: ["/api/me"],
@@ -292,12 +304,26 @@ function Router() {
 
   if (isLoading) return null;
 
+  if (!user) {
+    return (
+      <Switch>
+        <Route path="/auth" component={AuthPage} />
+        <Route path="/" component={AuthPage} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
   return (
-    <Switch>
-      <Route path="/" component={LandingPage} />
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-    </Switch>
+    <div className="flex min-h-screen bg-background text-foreground">
+      <Navigation />
+      <main className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 overflow-y-auto">
+        <Switch>
+          <Route path="/" component={Dashboard} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+    </div>
   );
 }
 
