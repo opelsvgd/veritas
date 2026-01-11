@@ -4,17 +4,56 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { TrendingUp, ArrowLeft, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema, type InsertUser } from "@shared/schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
-  const { user, isLoading: userLoading, loginMutation, registerMutation } = useUser();
+  const { user, isLoading: userLoading } = useUser();
   const [, setLocation] = useLocation();
   const [mode, setMode] = useState<"choice" | "login" | "register">("choice");
+  const { toast } = useToast();
+
+  const loginMutation = useMutation({
+    mutationFn: async (data: InsertUser) => {
+      const res = await apiRequest("POST", "/api/login", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/me"] });
+      setLocation("/");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: async (data: InsertUser) => {
+      const res = await apiRequest("POST", "/api/register", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/me"] });
+      setLocation("/");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Registration failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const loginForm = useForm<InsertUser>({
     resolver: zodResolver(insertUserSchema),
