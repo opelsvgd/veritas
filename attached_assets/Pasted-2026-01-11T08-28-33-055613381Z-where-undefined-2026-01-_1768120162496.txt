@@ -1,0 +1,50 @@
+2026-01-11T08:28:33.055613381Z   where: undefined,
+2026-01-11T08:28:33.055616622Z   schema: undefined,
+2026-01-11T08:28:33.055619962Z   table: undefined,
+2026-01-11T08:28:33.055626022Z   column: undefined,
+2026-01-11T08:28:33.055630132Z   dataType: undefined,
+2026-01-11T08:28:33.055634102Z   constraint: undefined,
+2026-01-11T08:28:33.055637622Z   file: 'parse_relation.c',
+2026-01-11T08:28:33.055641012Z   line: '1449',
+2026-01-11T08:28:33.055644202Z   routine: 'parserOpenTable'
+2026-01-11T08:28:33.055647332Z }
+2026-01-11T08:28:33.055650062Z 
+2026-01-11T08:28:33.055653082Z Node.js v22.16.0
+2026-01-11T08:28:36.939192628Z ==> Exited with status 1
+2026-01-11T08:28:37.049196964Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2026-01-11T08:28:41.406330864Z ==> Running 'npm start'
+2026-01-11T08:28:42.302464741Z 
+2026-01-11T08:28:42.302487122Z > rest-express@1.0.0 start
+2026-01-11T08:28:42.302492382Z > NODE_ENV=production node dist/index.cjs
+2026-01-11T08:28:42.302494952Z 
+2026-01-11T08:28:43.484289646Z /opt/render/project/src/dist/index.cjs:29899
+2026-01-11T08:28:43.484311096Z         Error.captureStackTrace(err);
+2026-01-11T08:28:43.484314066Z               ^
+2026-01-11T08:28:43.484316466Z 
+2026-01-11T08:28:43.484320237Z error: relation "investment_plans" does not exist
+2026-01-11T08:28:43.484323026Z     at /opt/render/project/src/dist/index.cjs:29899:15
+2026-01-11T08:28:43.484326306Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-01-11T08:28:43.484329007Z     at async /opt/render/project/src/dist/index.cjs:37732:22
+2026-01-11T08:28:43.484332547Z     at async DatabaseStorage.getInvestmentPlans (/opt/render/project/src/dist/index.cjs:42370:12)
+2026-01-11T08:28:43.484337137Z     at async registerRoutes (/opt/render/project/src/dist/index.cjs:42621:25)
+2026-01-11T08:28:43.484339867Z     at async /opt/render/project/src/dist/index.cjs:42833:3 {
+2026-01-11T08:28:43.484342517Z   length: 115,
+2026-01-11T08:28:43.484345987Z   severity: 'ERROR',
+2026-01-11T08:28:43.484348407Z   code: '42P01',
+2026-01-11T08:28:43.484350877Z   detail: undefined,
+2026-01-11T08:28:43.484353477Z   hint: undefined,
+2026-01-11T08:28:43.484355797Z   position: '75',
+2026-01-11T08:28:43.484358937Z   internalPosition: undefined,
+2026-01-11T08:28:43.484361487Z   internalQuery: undefined,
+2026-01-11T08:28:43.484363857Z   where: undefined,
+2026-01-11T08:28:43.484366647Z   schema: undefined,
+2026-01-11T08:28:43.484369238Z   table: undefined,
+2026-01-11T08:28:43.484371667Z   column: undefined,
+2026-01-11T08:28:43.484373978Z   dataType: undefined,
+2026-01-11T08:28:43.484376447Z   constraint: undefined,
+2026-01-11T08:28:43.484379038Z   file: 'parse_relation.c',
+2026-01-11T08:28:43.484381808Z   line: '1449',
+2026-01-11T08:28:43.484384638Z   routine: 'parserOpenTable'
+2026-01-11T08:28:43.484387088Z }
+2026-01-11T08:28:43.484389568Z 
+2026-01-11T08:28:43.484392078Z Node.js v22.16.0
