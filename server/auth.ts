@@ -14,9 +14,11 @@ const scryptAsync = promisify(scrypt);
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    interface User extends UserRecord {}
   }
 }
+
+type UserRecord = User;
 
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {

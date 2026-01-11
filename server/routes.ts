@@ -108,9 +108,6 @@ export async function registerRoutes(
       const investment = await storage.createInvestment({
         ...input,
         userId,
-        status: "active",
-        startDate: new Date(),
-        // End date would be calculated based on plan duration
       });
 
       // Record transaction
@@ -118,7 +115,6 @@ export async function registerRoutes(
         userId,
         type: "investment",
         amount: input.amount,
-        status: "success",
         chainId: 1 // Default chain
       });
 
@@ -151,7 +147,6 @@ export async function registerRoutes(
       const withdrawal = await storage.createWithdrawalRequest({
         ...input,
         userId,
-        status: "pending"
       });
 
        // Record transaction
@@ -159,7 +154,6 @@ export async function registerRoutes(
         userId,
         type: "withdrawal_request",
         amount: input.amount,
-        status: "pending",
         chainId: 1 
       });
 

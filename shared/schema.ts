@@ -99,9 +99,9 @@ export const insertUserSchema = createInsertSchema(users).omit({ id: true, creat
 export const insertWalletSchema = createInsertSchema(wallets).omit({ id: true, createdAt: true });
 export const insertBalanceSchema = createInsertSchema(balances).omit({ id: true });
 export const insertInvestmentPlanSchema = createInsertSchema(investmentPlans).omit({ id: true });
-export const insertInvestmentSchema = createInsertSchema(investments).omit({ id: true, startDate: true, endDate: true, status: true });
+export const insertInvestmentSchema = createInsertSchema(investments).omit({ id: true, startDate: true, endDate: true });
 export const insertTransactionSchema = createInsertSchema(transactions).omit({ id: true, createdAt: true });
-export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests).omit({ id: true, status: true, txHash: true, createdAt: true });
+export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests).omit({ id: true, txHash: true, createdAt: true });
 
 // === TYPES ===
 
@@ -117,3 +117,4 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertWallet = z.infer<typeof insertWalletSchema>;
 export type InsertInvestment = z.infer<typeof insertInvestmentSchema>;
 export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
