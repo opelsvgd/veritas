@@ -17,21 +17,18 @@ export async function registerRoutes(
   const existingPlans = await storage.getInvestmentPlans();
   if (existingPlans.length === 0) {
     await storage.createInvestmentPlan({
-      id: 0, // Let DB handle serial, but we need dummy object
       name: "Conservative Starter",
       roiPercentage: "5",
       durationDays: 30,
       minAmount: "100"
     } as any);
     await storage.createInvestmentPlan({
-      id: 0,
       name: "Balanced Growth",
       roiPercentage: "12",
       durationDays: 90,
       minAmount: "500"
     } as any);
     await storage.createInvestmentPlan({
-      id: 0,
       name: "Aggressive Yield",
       roiPercentage: "25",
       durationDays: 180,
