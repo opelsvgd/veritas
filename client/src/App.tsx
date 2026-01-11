@@ -8,6 +8,9 @@ import { useQuery } from "@tanstack/react-query";
 import { User } from "@shared/schema";
 import Dashboard from "@/pages/Dashboard";
 import AuthPage from "@/pages/AuthPage";
+import Invest from "@/pages/Invest";
+import Withdrawals from "@/pages/Withdrawals";
+import Admin from "@/pages/Admin";
 import { Navigation } from "@/components/Navigation";
 
 function Router() {
@@ -33,6 +36,9 @@ function Router() {
       <main className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 overflow-y-auto">
         <Switch>
           <Route path="/" component={Dashboard} />
+          <Route path="/invest" component={Invest} />
+          <Route path="/withdrawals" component={Withdrawals} />
+          <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>
       </main>
