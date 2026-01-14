@@ -124,14 +124,25 @@ export async function setupAuth(app: Express) {
     }),
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user, done) => {
+    console.log(`[Passport] serializeUser: ${user.id}`);
+    done(null, user.id);
+  });
+  
   passport.deserializeUser(async (id: number, done) => {
-    const user = await storage.getUser(id);
-    done(null, user);
+    console.log(`[Passport] deserializeUser: ${id}`);
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (err) {
+      console.error(`[Passport] deserializeUser error:`, err);
+      done(err);
+    }
   });
 
   app.post("/api/register", async (req, res, next) => {
     try {
+      console.log(`[Auth] Register attempt: ${req.body.username}`);
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
         return res.status(400).send("Username already exists");
@@ -143,12 +154,14 @@ export async function setupAuth(app: Express) {
         role: "user" // Default role
       });
 
+      console.log(`[Auth] Created user: ${user.id} (${user.username})`);
       req.login(user, (err) => {
         if (err) {
           console.error("Login error during registration:", err);
           return next(err);
         }
-        console.log(`User registered and logged in: ${user.id} (${user.username})`);
+        console.log(`[Auth] req.login succeeded. Session ID: ${req.sessionID}, req.user: ${req.user?.id}`);
+        console.log(`[Auth] Session ID assigned: ${req.sessionID}`);
         res.set('Access-Control-Allow-Credentials', 'true');
         res.status(201).json(user);
       });
@@ -158,33 +171,23 @@ export async function setupAuth(app: Express) {
   });
 
   app.post("/api/login", async (req, res, next) => {
-    // Custom login handler to handle the "no password" schema
+    console.log(`[Auth] Login attempt: ${req.body.username}`);
     const username = req.body.username;
     const user = await storage.getUserByUsername(username);
     
     if (!user) {
-      console.log(`Login attempt failed: user "${username}" not found`);
+      console.log(`[Auth] Login failed: user "${username}" not found`);
       return res.status(401).send("Invalid username");
     }
     
+    console.log(`[Auth] User found: ${user.id} (${user.username}), calling req.login()`);
     req.login(user, (err) => {
       if (err) {
-        console.error("Login error:", err);
+        console.error("[Auth] req.login error:", err);
         return next(err);
       }
-      console.log(`User logged in: ${user.id} (${user.username}), sessionID: ${req.sessionID}`);
-      console.log(`Session cookie settings:`, {
-        name: 'connect.sid',
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        secure: app.get("env") === "production",
-        sameSite: app.get("env") === "production" ? "none" : "lax",
-        path: "/"
-      });
-      // Check Set-Cookie header
-      const cookies = res.getHeaders()['set-cookie'];
-      console.log(`Set-Cookie headers:`, cookies);
-      
+      console.log(`[Auth] req.login succeeded. Session ID: ${req.sessionID}, req.user: ${req.user?.id}`);
+      console.log(`[Auth] isAuthenticated: ${req.isAuthenticated()}`);
       res.set('Access-Control-Allow-Credentials', 'true');
       res.json(user);
     });
