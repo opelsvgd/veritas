@@ -21,6 +21,7 @@ declare global {
 type UserRecord = User;
 
 export function setupAuth(app: Express) {
+  const isProduction = app.get("env") === "production";
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
     resave: false,
@@ -31,8 +32,8 @@ export function setupAuth(app: Express) {
     }),
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      secure: true,
-      sameSite: "none",
+      secure: isProduction, // HTTPS only in production
+      sameSite: isProduction ? "none" : "lax", // Cross-site in production, lax in dev
       httpOnly: true,
     },
   };
@@ -44,6 +45,12 @@ export function setupAuth(app: Express) {
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Ensure CORS headers are set for credentials
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+  });
 
   // Since we are using Replit Auth (via the headers usually, but for this standalone dev 
   // without the replit auth sidecar fully integrated in this specific agent environment 
@@ -125,6 +132,7 @@ export function setupAuth(app: Express) {
     
     req.login(user, (err) => {
       if (err) return next(err);
+      res.set('Access-Control-Allow-Credentials', 'true');
       res.json(user);
     });
   });
@@ -132,6 +140,7 @@ export function setupAuth(app: Express) {
   app.post("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) return next(err);
+      res.set('Access-Control-Allow-Credentials', 'true');
       res.sendStatus(200);
     });
   });

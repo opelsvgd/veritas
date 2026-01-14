@@ -10,22 +10,30 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema, type InsertUser } from "@shared/schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
-  const { user, isLoading: userLoading } = useUser();
+  const { user, isLoading: userLoading, refetch } = useUser();
   const [, setLocation] = useLocation();
   const [mode, setMode] = useState<"choice" | "login" | "register">("choice");
   const { toast } = useToast();
 
   const loginMutation = useMutation({
     mutationFn: async (data: InsertUser) => {
-      const res = await apiRequest("POST", "/api/login", data);
+      const baseUrl = "https://veritas-9pwj.onrender.com";
+      const res = await fetch(`${baseUrl}/api/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Login failed");
       return res.json();
     },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/me"], user);
+    onSuccess: async (user) => {
+      await refetch();
       window.location.href = "/";
     },
     onError: (error: Error) => {
@@ -39,11 +47,20 @@ export default function AuthPage() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: InsertUser) => {
-      const res = await apiRequest("POST", "/api/register", data);
+      const baseUrl = "https://veritas-9pwj.onrender.com";
+      const res = await fetch(`${baseUrl}/api/register`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Registration failed");
       return res.json();
     },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/me"], user);
+    onSuccess: async (user) => {
+      await refetch();
       window.location.href = "/";
     },
     onError: (error: Error) => {
