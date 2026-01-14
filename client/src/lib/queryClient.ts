@@ -32,7 +32,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const baseUrl = import.meta.env.VITE_API_URL || "https://veritas-9pwj.onrender.com";
     const url = queryKey.join("/") as string;
     const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
 
