@@ -113,7 +113,12 @@ export function setupAuth(app: Express) {
       });
 
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("Login error during registration:", err);
+          return next(err);
+        }
+        console.log(`User registered and logged in: ${user.id} (${user.username})`);
+        res.set('Access-Control-Allow-Credentials', 'true');
         res.status(201).json(user);
       });
     } catch (err) {
@@ -127,19 +132,29 @@ export function setupAuth(app: Express) {
     const user = await storage.getUserByUsername(username);
     
     if (!user) {
+      console.log(`Login attempt failed: user "${username}" not found`);
       return res.status(401).send("Invalid username");
     }
     
     req.login(user, (err) => {
-      if (err) return next(err);
+      if (err) {
+        console.error("Login error:", err);
+        return next(err);
+      }
+      console.log(`User logged in: ${user.id} (${user.username}), sessionID: ${req.sessionID}`);
       res.set('Access-Control-Allow-Credentials', 'true');
       res.json(user);
     });
   });
 
   app.post("/api/logout", (req, res, next) => {
+    const sessionID = req.sessionID;
     req.logout((err) => {
-      if (err) return next(err);
+      if (err) {
+        console.error("Logout error:", err);
+        return next(err);
+      }
+      console.log(`User logged out: ${sessionID}`);
       res.set('Access-Control-Allow-Credentials', 'true');
       res.sendStatus(200);
     });

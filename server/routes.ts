@@ -39,9 +39,12 @@ export async function registerRoutes(
 
   // === MIDDLEWARE ===
   const requireAuth = (req: any, res: any, next: any) => {
+    console.log(`Auth check: sessionID=${req.sessionID}, authenticated=${req.isAuthenticated()}, user=${req.user?.id}`);
     if (!req.isAuthenticated()) {
+      console.log(`Auth failed: no authenticated user`);
       return res.status(401).json({ message: "Unauthorized" });
     }
+    console.log(`Auth passed for user ${req.user.id}`);
     next();
   };
 
