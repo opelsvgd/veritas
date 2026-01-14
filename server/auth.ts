@@ -56,8 +56,8 @@ export async function setupAuth(app: Express) {
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: sessionStore,
     name: "connect.sid",
     cookie: {
@@ -162,8 +162,16 @@ export async function setupAuth(app: Express) {
         }
         console.log(`[Auth] req.login succeeded. Session ID: ${req.sessionID}, req.user: ${req.user?.id}`);
         console.log(`[Auth] Session ID assigned: ${req.sessionID}`);
-        res.set('Access-Control-Allow-Credentials', 'true');
-        res.status(201).json(user);
+        // Explicitly save session to ensure Set-Cookie is sent
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("[Auth] Session save error:", saveErr);
+            return next(saveErr);
+          }
+          console.log(`[Auth] Session saved successfully`);
+          res.set('Access-Control-Allow-Credentials', 'true');
+          res.status(201).json(user);
+        });
       });
     } catch (err) {
       next(err);
@@ -188,8 +196,16 @@ export async function setupAuth(app: Express) {
       }
       console.log(`[Auth] req.login succeeded. Session ID: ${req.sessionID}, req.user: ${req.user?.id}`);
       console.log(`[Auth] isAuthenticated: ${req.isAuthenticated()}`);
-      res.set('Access-Control-Allow-Credentials', 'true');
-      res.json(user);
+      // Explicitly save session to ensure Set-Cookie is sent
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("[Auth] Session save error:", saveErr);
+          return next(saveErr);
+        }
+        console.log(`[Auth] Session saved successfully`);
+        res.set('Access-Control-Allow-Credentials', 'true');
+        res.json(user);
+      });
     });
   });
 
