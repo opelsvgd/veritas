@@ -6,12 +6,12 @@ export function useUser() {
     queryKey: [api.me.path],
     queryFn: async () => {
       const baseUrl = "https://veritas-9pwj.onrender.com";
-      const res = await fetch(`${baseUrl}${api.me.path}`, {
+      const res = await fetch(`${baseUrl}/api/me`, {
         credentials: "include"
       });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch user");
-      return api.me.responses[200].parse(await res.json());
+      return await res.json();
     },
     retry: false,
   });
