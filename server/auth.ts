@@ -59,13 +59,13 @@ export async function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
+    name: "connect.sid",
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      secure: isProduction, // HTTPS only in production
-      sameSite: isProduction ? "none" : "lax", // Cross-site in production, lax in dev
+      secure: true, // Always HTTPS (Render provides this)
+      sameSite: "none", // Required for cross-origin cookies from Vercel to Render
       httpOnly: true,
       path: "/",
-      domain: isProduction ? undefined : undefined, // Let browser infer domain
     },
   };
 
