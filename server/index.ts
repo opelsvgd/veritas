@@ -46,10 +46,15 @@ const allowedOrigins = [
   "https://veritas-replit.replit.app"
 ].filter(Boolean) as string[];
 
+console.log(`CORS allowed origins:`, allowedOrigins);
+console.log(`NODE_ENV:`, process.env.NODE_ENV);
+
 app.use(cors({
   origin: (origin, callback) => {
     // Check if the origin is in our allowed list or if it's a local/non-browser request
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development") {
+    const allowed = !origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development";
+    console.log(`CORS check for origin="${origin}": ${allowed ? "✓ allowed" : "✗ blocked"}`);
+    if (allowed) {
       callback(null, true);
     } else {
       console.log(`Blocked by CORS: ${origin}`);

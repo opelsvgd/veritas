@@ -20,39 +20,52 @@ declare global {
 
 type UserRecord = User;
 
+let sessionStore: any;
+
 export async function setupAuth(app: Express) {
   const isProduction = app.get("env") === "production";
   
-  // Ensure the session table exists
+  // Try to use PostgreSQL session store, fall back to memory if it fails
+  let useMemoryStore = false;
   try {
+    // Test the pool connection
+    const testConn = await pool.query("SELECT 1");
+    console.log("✓ PostgreSQL connection successful");
+    
+    // Create session table if it doesn't exist
     await pool.query(`
       CREATE TABLE IF NOT EXISTS "session" (
-        "sid" varchar NOT NULL COLLATE "default",
+        "sid" varchar NOT NULL,
         "sess" json NOT NULL,
-        "expire" timestamp(6) NOT NULL,
+        "expire" timestamp NOT NULL,
         PRIMARY KEY ("sid")
       );
-      CREATE INDEX IF NOT EXISTS "IDX_session_expire" on "session" ("expire");
     `);
     console.log("✓ Session table verified/created");
+    
+    sessionStore = new PostgresSessionStore({
+      pool,
+      tableName: "session",
+    });
   } catch (err) {
-    console.error("✗ Failed to create session table:", err);
+    console.error("✗ PostgreSQL session store failed:", err);
+    console.log("→ Falling back to memory session store");
+    useMemoryStore = true;
+    sessionStore = new session.MemoryStore();
   }
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
     resave: false,
     saveUninitialized: false,
-    store: new PostgresSessionStore({
-      pool,
-      tableName: "session",
-    }),
+    store: sessionStore,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       secure: isProduction, // HTTPS only in production
       sameSite: isProduction ? "none" : "lax", // Cross-site in production, lax in dev
       httpOnly: true,
       path: "/",
+      domain: isProduction ? undefined : undefined, // Let browser infer domain
     },
   };
 
