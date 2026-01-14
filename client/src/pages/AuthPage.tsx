@@ -24,9 +24,9 @@ export default function AuthPage() {
       const res = await apiRequest("POST", "/api/login", data);
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/me"] });
-      setLocation("/");
+    onSuccess: (user) => {
+      queryClient.setQueryData(["/api/me"], user);
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({
@@ -42,9 +42,9 @@ export default function AuthPage() {
       const res = await apiRequest("POST", "/api/register", data);
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/me"] });
-      setLocation("/");
+    onSuccess: (user) => {
+      queryClient.setQueryData(["/api/me"], user);
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({

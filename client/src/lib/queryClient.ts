@@ -33,7 +33,7 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const baseUrl = "https://veritas-9pwj.onrender.com";
-    const url = (queryKey[0].startsWith("/") ? queryKey[0] : `/${queryKey[0]}`) as string;
+    const url = (typeof queryKey[0] === 'string' && queryKey[0].startsWith("/") ? queryKey[0] : `/${queryKey[0]}`) as string;
     const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
 
     const res = await fetch(fullUrl, {

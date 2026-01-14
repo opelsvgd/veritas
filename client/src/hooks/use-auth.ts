@@ -11,7 +11,12 @@ export function useUser() {
       });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch user");
-      return await res.json();
+      const user = await res.json();
+      // Ensure we redirect if authenticated
+      if (user && window.location.pathname === "/auth") {
+        window.location.href = "/";
+      }
+      return user;
     },
     retry: false,
   });

@@ -31,8 +31,9 @@ export function setupAuth(app: Express) {
     }),
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      secure: app.get("env") === "production",
-      sameSite: app.get("env") === "production" ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
+      httpOnly: true,
     },
   };
 
