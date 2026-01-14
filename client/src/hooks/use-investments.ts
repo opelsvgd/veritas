@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type InsertInvestment } from "@shared/routes";
+import { api } from "@shared/routes";
 import { apiRequest } from "@/lib/queryClient";
+import { type InsertInvestment } from "@shared/schema";
 
 export function usePlans() {
   return useQuery({
