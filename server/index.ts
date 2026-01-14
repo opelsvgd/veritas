@@ -6,8 +6,18 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = typeof import.meta.url !== 'undefined' ? fileURLToPath(import.meta.url) : __filename;
-const __dirname = typeof import.meta.url !== 'undefined' ? path.dirname(__filename) : __dirname;
+// Polyfill for __filename and __dirname in ESM, but handle CJS environments where they exist
+let __filename_poly: string;
+let __dirname_poly: string;
+
+try {
+  __filename_poly = fileURLToPath(import.meta.url);
+  __dirname_poly = path.dirname(__filename_poly);
+} catch (e) {
+  // Fallback for CJS environments (like Render production build)
+  __filename_poly = __filename;
+  __dirname_poly = __dirname;
+}
 
 const app = express();
 const httpServer = createServer(app);
@@ -100,7 +110,7 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (process.env.NODE_ENV === "production") {
-    const publicPath = path.resolve(__dirname, "public");
+    const publicPath = path.resolve(__dirname_poly, "public");
     app.use(express.static(publicPath));
     app.get("*", (req, res, next) => {
       if (req.path.startsWith("/api")) return next();
