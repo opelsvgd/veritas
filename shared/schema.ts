@@ -7,8 +7,9 @@ import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(), // Will map to Replit Auth username
-  role: text("role").default("user").notNull(), // 'user' or 'admin'
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  role: text("role").default("user").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
