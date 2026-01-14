@@ -10,7 +10,7 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   // Setup Auth (Replit Auth)
-  setupAuth(app);
+  await setupAuth(app);
 
   // === SEED DATA ===
   // Seed investment plans if they don't exist

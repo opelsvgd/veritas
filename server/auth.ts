@@ -20,8 +20,25 @@ declare global {
 
 type UserRecord = User;
 
-export function setupAuth(app: Express) {
+export async function setupAuth(app: Express) {
   const isProduction = app.get("env") === "production";
+  
+  // Ensure the session table exists
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "session" (
+        "sid" varchar NOT NULL COLLATE "default",
+        "sess" json NOT NULL,
+        "expire" timestamp(6) NOT NULL,
+        PRIMARY KEY ("sid")
+      );
+      CREATE INDEX IF NOT EXISTS "IDX_session_expire" on "session" ("expire");
+    `);
+    console.log("✓ Session table verified/created");
+  } catch (err) {
+    console.error("✗ Failed to create session table:", err);
+  }
+
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
     resave: false,
@@ -35,6 +52,7 @@ export function setupAuth(app: Express) {
       secure: isProduction, // HTTPS only in production
       sameSite: isProduction ? "none" : "lax", // Cross-site in production, lax in dev
       httpOnly: true,
+      path: "/",
     },
   };
 
@@ -142,6 +160,18 @@ export function setupAuth(app: Express) {
         return next(err);
       }
       console.log(`User logged in: ${user.id} (${user.username}), sessionID: ${req.sessionID}`);
+      console.log(`Session cookie settings:`, {
+        name: 'connect.sid',
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: app.get("env") === "production",
+        sameSite: app.get("env") === "production" ? "none" : "lax",
+        path: "/"
+      });
+      // Check Set-Cookie header
+      const cookies = res.getHeaders()['set-cookie'];
+      console.log(`Set-Cookie headers:`, cookies);
+      
       res.set('Access-Control-Allow-Credentials', 'true');
       res.json(user);
     });
