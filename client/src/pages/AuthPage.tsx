@@ -11,6 +11,8 @@ import { insertUserSchema, type InsertUser } from "@shared/schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
+import { api } from "@shared/routes";
 
 export default function AuthPage() {
   const { user, isLoading: userLoading, refetch } = useUser();
@@ -29,11 +31,16 @@ export default function AuthPage() {
         },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Login failed");
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Login failed");
+      }
       return res.json();
     },
-    onSuccess: async (user) => {
-      await refetch();
+    onSuccess: (user) => {
+      // Update cache immediately with logged-in user
+      queryClient.setQueryData([api.me.path], user);
+      // Navigate will trigger the useUser query which will check session
       window.location.href = "/";
     },
     onError: (error: Error) => {
@@ -56,11 +63,16 @@ export default function AuthPage() {
         },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Registration failed");
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Registration failed");
+      }
       return res.json();
     },
-    onSuccess: async (user) => {
-      await refetch();
+    onSuccess: (user) => {
+      // Update cache immediately with logged-in user
+      queryClient.setQueryData([api.me.path], user);
+      // Navigate will trigger the useUser query which will check session
       window.location.href = "/";
     },
     onError: (error: Error) => {
