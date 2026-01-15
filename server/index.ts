@@ -41,7 +41,7 @@ app.use(express.urlencoded({ extended: false }));
 // CORS setup for frontend
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  "https://veritas-one-sandy.vercel.app", // Matches your current Vercel deployment
+  "https://veritas-one-sandy.vercel.app",
   "http://localhost:5000",
   "https://veritas-replit.replit.app"
 ].filter(Boolean) as string[];
@@ -52,16 +52,18 @@ console.log(`NODE_ENV:`, process.env.NODE_ENV);
 app.use(cors({
   origin: (origin, callback) => {
     // Check if the origin is in our allowed list or if it's a local/non-browser request
+    // IMPORTANT: origin can be undefined for some requests, we should allow it but only if not strictly cross-origin
     const allowed = !origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development";
-    console.log(`CORS check for origin="${origin}": ${allowed ? "✓ allowed" : "✗ blocked"}`);
     if (allowed) {
       callback(null, true);
     } else {
-      console.log(`Blocked by CORS: ${origin}`);
+      console.log(`Blocked by CORS: origin="${origin}"`);
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
 
 export function log(message: string, source = "express") {
