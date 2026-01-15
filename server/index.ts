@@ -105,9 +105,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  if (process.env.NODE_ENV === "production") {
-    app.set("trust proxy", 1);
-  }
+  // Always trust proxy in this environment to ensure secure cookies work
+  app.set("trust proxy", 1);
 
   await registerRoutes(httpServer, app);
 

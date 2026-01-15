@@ -54,6 +54,9 @@ export async function setupAuth(app: Express) {
     sessionStore = new session.MemoryStore();
   }
 
+  // Always trust proxy if we're behind one (Render/Replit/Vercel)
+  app.set("trust proxy", 1);
+
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
     resave: true,
@@ -64,17 +67,12 @@ export async function setupAuth(app: Express) {
     rolling: true,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000,
-      secure: true,
+      secure: true, // Required for sameSite: "none"
       sameSite: "none",
       httpOnly: true,
       path: "/",
-      // Removed restricted domain scope to allow browser to handle cross-site association automatically
     },
   };
-
-  if (app.get("env") === "production") {
-    app.set("trust proxy", 1);
-  }
 
   app.use(session(sessionSettings));
   app.use(passport.initialize());
