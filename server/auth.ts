@@ -68,7 +68,7 @@ export async function setupAuth(app: Express) {
       sameSite: "none",
       httpOnly: true,
       path: "/",
-      domain: ".onrender.com" // Try setting domain to parent to help cross-site
+      // Removed restricted domain scope to allow browser to handle cross-site association automatically
     },
   };
 

@@ -1,9 +1,11 @@
-# Project: REST Express Application
+# Project: Veritas Crypto
 
 ## Overview
-This is a full-stack JavaScript application built with Express on the backend and React on the frontend. It uses Drizzle ORM for database management and Passport.js for authentication.
+This is a full-stack JavaScript application built with Express on the backend and React on the frontend. It is a licensed custodial crypto investment platform named "Veritas Crypto".
 
 ## Recent Changes
+- Fixed immediate logouts by adjusting session cookie domain and proxy trust.
+- Updated branding across the application to "Veritas Crypto".
 - Migrated project structure to Replit environment (January 2026).
 - Verified local development server functionality on port 5000.
 - Documented external deployment architecture.
@@ -12,8 +14,8 @@ This is a full-stack JavaScript application built with Express on the backend an
 - Added `session` table to schema to support `connect-pg-simple` on Supabase.
 
 ## Deployment Details
-- **Backend**: Render
-- **Frontend**: Vercel
+- **Backend**: Render (https://veritas-9pwj.onrender.com)
+- **Frontend**: Vercel (https://veritas-one-sandy.vercel.app)
 - **Database**: Supabase (PostgreSQL)
 
 ## Architecture
