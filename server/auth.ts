@@ -56,15 +56,15 @@ export async function setupAuth(app: Express) {
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
-    resave: false, // Recommended to be false for most stores
-    saveUninitialized: false, // Don't create session until something is stored
+    resave: true, // Force save to ensure cookie is sent
+    saveUninitialized: true, // Force session creation
     store: sessionStore,
     name: "connect.sid",
-    proxy: true, // Required for secure cookies behind a proxy (Render)
+    proxy: true,
     cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      secure: true, // Always HTTPS
-      sameSite: "none", // Required for cross-origin cookies
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: true,
+      sameSite: "none",
       httpOnly: true,
       path: "/",
     },

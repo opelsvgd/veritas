@@ -104,6 +104,10 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
+
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
