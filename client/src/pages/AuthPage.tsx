@@ -120,7 +120,7 @@ export default function AuthPage() {
               <TrendingUp className="h-8 w-8 text-white" />
             </div>
             <div>
-              <CardTitle className="text-3xl font-bold font-display tracking-tight text-white">CryptoVest</CardTitle>
+              <CardTitle className="text-3xl font-bold font-display tracking-tight text-white">Veritas Crypto</CardTitle>
               <CardDescription className="text-lg mt-2">Premium Asset Management</CardDescription>
             </div>
           </CardHeader>

@@ -38,7 +38,7 @@ export function Navigation() {
       <div className="px-3 py-2">
         <h2 className="mb-2 px-4 text-lg font-bold tracking-tight text-primary font-display flex items-center gap-2">
           <TrendingUp className="h-6 w-6" />
-          CryptoVest
+          Veritas Crypto
         </h2>
         <p className="px-4 text-xs text-muted-foreground mb-6">
           Premium Custodial Assets
@@ -98,7 +98,7 @@ export function Navigation() {
       {/* Mobile Navbar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-md px-4 flex items-center justify-between">
          <span className="font-bold font-display text-lg text-primary flex items-center gap-2">
-           <TrendingUp className="h-5 w-5" /> CryptoVest
+           <TrendingUp className="h-5 w-5" /> Veritas Crypto
          </span>
          <Sheet open={isOpen} onOpenChange={setIsOpen}>
            <SheetTrigger asChild>

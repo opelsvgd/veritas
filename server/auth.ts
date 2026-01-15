@@ -61,13 +61,14 @@ export async function setupAuth(app: Express) {
     store: sessionStore,
     name: "connect.sid",
     proxy: true,
-    rolling: true, // Refresh session on every request
+    rolling: true,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       secure: true,
       sameSite: "none",
       httpOnly: true,
       path: "/",
+      domain: ".onrender.com" // Try setting domain to parent to help cross-site
     },
   };
 
