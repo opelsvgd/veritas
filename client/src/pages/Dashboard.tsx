@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 
 const container = {
   hidden: { opacity: 0 },

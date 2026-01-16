@@ -1,8 +1,8 @@
 import { 
   users, wallets, balances, investmentPlans, investments, transactions, withdrawalRequests,
-  type User, type InsertUser, type Wallet, type InsertWallet, type Balance,
+  type User, type InsertUser, type Wallet, type InsertWallet, type Balance, type InsertBalance,
   type InvestmentPlan, type Investment, type InsertInvestment, type Transaction, 
-  type WithdrawalRequest, type InsertWithdrawalRequest, type InsertTransaction
+  type WithdrawalRequest, type InsertWithdrawalRequest
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -30,7 +30,7 @@ export interface IStorage {
   
   // Transactions
   getTransactions(userId: number): Promise<Transaction[]>;
-  createTransaction(tx: InsertTransaction): Promise<Transaction>;
+  createTransaction(tx: any): Promise<Transaction>;
   getAllDeposits(): Promise<Transaction[]>; // For admin
   
   // Withdrawals
@@ -53,21 +53,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const { password, ...userData } = insertUser;
-    console.log(`[STORAGE] Attempting to create user: ${userData.username}`);
-    
-    try {
-      const [user] = await db.insert(users).values({
-        ...userData,
-        password: password 
-      } as any).returning();
-      
-      console.log(`[STORAGE] Successfully created user: ${user.username} (ID: ${user.id})`);
-      return user;
-    } catch (error) {
-      console.error(`[STORAGE] Error creating user:`, error);
-      throw error;
-    }
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
   }
 
   async getWallet(userId: number): Promise<Wallet | undefined> {
@@ -134,7 +121,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(transactions).where(eq(transactions.userId, userId)).orderBy(desc(transactions.createdAt));
   }
 
-  async createTransaction(tx: InsertTransaction): Promise<Transaction> {
+  async createTransaction(tx: any): Promise<Transaction> {
     const [newTx] = await db.insert(transactions).values(tx).returning();
     return newTx;
   }

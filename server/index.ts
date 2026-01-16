@@ -3,21 +3,6 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
-
-// Polyfill for __filename and __dirname in ESM, but handle CJS environments where they exist
-let __filename_poly: string;
-let __dirname_poly: string;
-
-try {
-  __filename_poly = fileURLToPath(import.meta.url);
-  __dirname_poly = path.dirname(__filename_poly);
-} catch (e) {
-  // Fallback for CJS environments (like Render production build)
-  __filename_poly = __filename;
-  __dirname_poly = __dirname;
-}
 
 const app = express();
 const httpServer = createServer(app);
@@ -39,32 +24,9 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 // CORS setup for frontend
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "https://veritas-one-sandy.vercel.app",
-  "http://localhost:5000",
-  "https://veritas-replit.replit.app"
-].filter(Boolean) as string[];
-
-console.log(`CORS allowed origins:`, allowedOrigins);
-console.log(`NODE_ENV:`, process.env.NODE_ENV);
-
 app.use(cors({
-  origin: (origin, callback) => {
-    // Check if the origin is in our allowed list or if it's a local/non-browser request
-    // IMPORTANT: origin can be undefined for some requests, we should allow it but only if not strictly cross-origin
-    const allowed = !origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development";
-    if (allowed) {
-      callback(null, true);
-    } else {
-      console.log(`Blocked by CORS: origin="${origin}"`);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Cookie"],
-  exposedHeaders: ["Set-Cookie"]
+  origin: process.env.FRONTEND_URL || "*", // Allow all in dev, set to Vercel URL in prod
+  credentials: true
 }));
 
 export function log(message: string, source = "express") {
@@ -105,9 +67,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Always trust proxy in this environment to ensure secure cookies work
-  app.set("trust proxy", 1);
-
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -122,12 +81,7 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (process.env.NODE_ENV === "production") {
-    const publicPath = path.resolve(__dirname_poly, "public");
-    app.use(express.static(publicPath));
-    app.get("*", (req, res, next) => {
-      if (req.path.startsWith("/api")) return next();
-      res.sendFile(path.resolve(publicPath, "index.html"));
-    });
+    serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);

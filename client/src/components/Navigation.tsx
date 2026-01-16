@@ -1,17 +1,15 @@
 import { Link, useLocation } from "wouter";
 import { LayoutDashboard, TrendingUp, Wallet, Settings, LogOut, ShieldCheck, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser, logout } from "@/hooks/use-auth";
+import { useUser } from "@/hooks/use-auth";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useToast } from "@/hooks/use-toast";
 
 export function Navigation() {
   const [location] = useLocation();
   const { user, isAdmin } = useUser();
   const [isOpen, setIsOpen] = useState(false);
-  const { toast } = useToast();
 
   const links = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -20,25 +18,12 @@ export function Navigation() {
     ...(isAdmin ? [{ href: "/admin", label: "Admin Panel", icon: ShieldCheck }] : []),
   ];
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      window.location.href = "/auth";
-    } catch (error) {
-      toast({
-        title: "Logout failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    }
-  };
-
   const NavContent = () => (
     <div className="flex flex-col h-full space-y-4">
       <div className="px-3 py-2">
         <h2 className="mb-2 px-4 text-lg font-bold tracking-tight text-primary font-display flex items-center gap-2">
           <TrendingUp className="h-6 w-6" />
-          Veritas Crypto
+          CryptoVest
         </h2>
         <p className="px-4 text-xs text-muted-foreground mb-6">
           Premium Custodial Assets
@@ -76,11 +61,7 @@ export function Navigation() {
             <span className="text-xs text-muted-foreground capitalize">{user?.role}</span>
           </div>
         </div>
-        <Button 
-          variant="outline" 
-          className="w-full justify-start gap-2 text-muted-foreground border-border/50 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-          onClick={handleLogout}
-        >
+        <Button variant="outline" className="w-full justify-start gap-2 text-muted-foreground border-border/50 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30">
           <LogOut className="h-4 w-4" />
           Sign Out
         </Button>
@@ -98,7 +79,7 @@ export function Navigation() {
       {/* Mobile Navbar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-md px-4 flex items-center justify-between">
          <span className="font-bold font-display text-lg text-primary flex items-center gap-2">
-           <TrendingUp className="h-5 w-5" /> Veritas Crypto
+           <TrendingUp className="h-5 w-5" /> CryptoVest
          </span>
          <Sheet open={isOpen} onOpenChange={setIsOpen}>
            <SheetTrigger asChild>

@@ -2,88 +2,34 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Express } from "express";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
-import { pool } from "./db";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User } from "@shared/schema";
 
-const PostgresSessionStore = connectPg(session);
 const scryptAsync = promisify(scrypt);
 
 declare global {
   namespace Express {
-    interface User extends UserRecord {}
+    interface User extends User {}
   }
 }
 
-type UserRecord = User;
-
-let sessionStore: any;
-
-export async function setupAuth(app: Express) {
-  const isProduction = app.get("env") === "production";
-  
-  // Try to use PostgreSQL session store, fall back to memory if it fails
-  let useMemoryStore = false;
-  try {
-    // Test the pool connection
-    const testConn = await pool.query("SELECT 1");
-    console.log("✓ PostgreSQL connection successful");
-    
-    // Create session table if it doesn't exist
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS "session" (
-        "sid" varchar NOT NULL,
-        "sess" json NOT NULL,
-        "expire" timestamp NOT NULL,
-        PRIMARY KEY ("sid")
-      );
-    `);
-    console.log("✓ Session table verified/created");
-    
-    sessionStore = new PostgresSessionStore({
-      pool,
-      tableName: "session",
-    });
-  } catch (err) {
-    console.error("✗ PostgreSQL session store failed:", err);
-    console.log("→ Falling back to memory session store");
-    useMemoryStore = true;
-    sessionStore = new session.MemoryStore();
-  }
-
-  // Always trust proxy if we're behind one (Render/Replit/Vercel)
-  app.set("trust proxy", 1);
-
+export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
-    resave: true,
-    saveUninitialized: true,
-    store: sessionStore,
-    name: "connect.sid",
-    proxy: true,
-    rolling: true,
-    cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      secure: true,
-      sameSite: "none",
-      httpOnly: true,
-      path: "/",
-      partitioned: true, // Use Partitioned cookies (CHIPS) to help with cross-site cookie blocking
-    },
+    resave: false,
+    saveUninitialized: false,
+    store: storage.sessionStore,
   };
+
+  if (app.get("env") === "production") {
+    app.set("trust proxy", 1);
+  }
 
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
-
-  // Ensure CORS headers are set for credentials
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-  });
 
   // Since we are using Replit Auth (via the headers usually, but for this standalone dev 
   // without the replit auth sidecar fully integrated in this specific agent environment 
@@ -126,25 +72,14 @@ export async function setupAuth(app: Express) {
     }),
   );
 
-  passport.serializeUser((user, done) => {
-    console.log(`[Passport] serializeUser: ${user.id}`);
-    done(null, user.id);
-  });
-  
+  passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
-    console.log(`[Passport] deserializeUser: ${id}`);
-    try {
-      const user = await storage.getUser(id);
-      done(null, user);
-    } catch (err) {
-      console.error(`[Passport] deserializeUser error:`, err);
-      done(err);
-    }
+    const user = await storage.getUser(id);
+    done(null, user);
   });
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      console.log(`[Auth] Register attempt: ${req.body.username}`);
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
         return res.status(400).send("Username already exists");
@@ -152,28 +87,12 @@ export async function setupAuth(app: Express) {
 
       const user = await storage.createUser({
         username: req.body.username,
-        password: req.body.password,
         role: "user" // Default role
       });
 
-      console.log(`[Auth] Created user: ${user.id} (${user.username})`);
       req.login(user, (err) => {
-        if (err) {
-          console.error("Login error during registration:", err);
-          return next(err);
-        }
-        console.log(`[Auth] req.login succeeded. Session ID: ${req.sessionID}, req.user: ${req.user?.id}`);
-        console.log(`[Auth] Session ID assigned: ${req.sessionID}`);
-        // Explicitly save session to ensure Set-Cookie is sent
-        req.session.save((saveErr) => {
-          if (saveErr) {
-            console.error("[Auth] Session save error:", saveErr);
-            return next(saveErr);
-          }
-          console.log(`[Auth] Session saved successfully`);
-          res.set('Access-Control-Allow-Credentials', 'true');
-          res.status(201).json(user);
-        });
+        if (err) return next(err);
+        res.status(201).json(user);
       });
     } catch (err) {
       next(err);
@@ -181,45 +100,23 @@ export async function setupAuth(app: Express) {
   });
 
   app.post("/api/login", async (req, res, next) => {
-    console.log(`[Auth] Login attempt: ${req.body.username}`);
+    // Custom login handler to handle the "no password" schema
     const username = req.body.username;
     const user = await storage.getUserByUsername(username);
     
     if (!user) {
-      console.log(`[Auth] Login failed: user "${username}" not found`);
       return res.status(401).send("Invalid username");
     }
     
-    console.log(`[Auth] User found: ${user.id} (${user.username}), calling req.login()`);
     req.login(user, (err) => {
-      if (err) {
-        console.error("[Auth] req.login error:", err);
-        return next(err);
-      }
-      console.log(`[Auth] req.login succeeded. Session ID: ${req.sessionID}, req.user: ${req.user?.id}`);
-      console.log(`[Auth] isAuthenticated: ${req.isAuthenticated()}`);
-      // Explicitly save session to ensure Set-Cookie is sent
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          console.error("[Auth] Session save error:", saveErr);
-          return next(saveErr);
-        }
-        console.log(`[Auth] Session saved successfully`);
-        res.set('Access-Control-Allow-Credentials', 'true');
-        res.json(user);
-      });
+      if (err) return next(err);
+      res.json(user);
     });
   });
 
   app.post("/api/logout", (req, res, next) => {
-    const sessionID = req.sessionID;
     req.logout((err) => {
-      if (err) {
-        console.error("Logout error:", err);
-        return next(err);
-      }
-      console.log(`User logged out: ${sessionID}`);
-      res.set('Access-Control-Allow-Credentials', 'true');
+      if (err) return next(err);
       res.sendStatus(200);
     });
   });
