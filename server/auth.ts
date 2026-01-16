@@ -67,10 +67,11 @@ export async function setupAuth(app: Express) {
     rolling: true,
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000,
-      secure: true, // Required for sameSite: "none"
+      secure: true,
       sameSite: "none",
       httpOnly: true,
       path: "/",
+      partitioned: true, // Use Partitioned cookies (CHIPS) to help with cross-site cookie blocking
     },
   };
 
