@@ -17,21 +17,18 @@ export async function registerRoutes(
   const existingPlans = await storage.getInvestmentPlans();
   if (existingPlans.length === 0) {
     await storage.createInvestmentPlan({
-      id: 0, // Let DB handle serial, but we need dummy object
       name: "Conservative Starter",
       roiPercentage: "5",
       durationDays: 30,
       minAmount: "100"
     } as any);
     await storage.createInvestmentPlan({
-      id: 0,
       name: "Balanced Growth",
       roiPercentage: "12",
       durationDays: 90,
       minAmount: "500"
     } as any);
     await storage.createInvestmentPlan({
-      id: 0,
       name: "Aggressive Yield",
       roiPercentage: "25",
       durationDays: 180,
@@ -108,9 +105,6 @@ export async function registerRoutes(
       const investment = await storage.createInvestment({
         ...input,
         userId,
-        status: "active",
-        startDate: new Date(),
-        // End date would be calculated based on plan duration
       });
 
       // Record transaction
@@ -118,7 +112,6 @@ export async function registerRoutes(
         userId,
         type: "investment",
         amount: input.amount,
-        status: "success",
         chainId: 1 // Default chain
       });
 
@@ -151,7 +144,6 @@ export async function registerRoutes(
       const withdrawal = await storage.createWithdrawalRequest({
         ...input,
         userId,
-        status: "pending"
       });
 
        // Record transaction
@@ -159,7 +151,6 @@ export async function registerRoutes(
         userId,
         type: "withdrawal_request",
         amount: input.amount,
-        status: "pending",
         chainId: 1 
       });
 

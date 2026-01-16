@@ -44,19 +44,24 @@ async function buildAll() {
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.devDependencies || {}),
   ];
+  
+  // We want to bundle everything except truly native node modules or things that MUST be external
+  // Given the error in pg-pass/pg, we should probably bundle more rather than less, 
+  // or ensure native modules like 'pg' are external but their helpers are bundled.
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
+    target: "node20",
     bundle: true,
     format: "cjs",
     outfile: "dist/index.cjs",
     define: {
       "process.env.NODE_ENV": '"production"',
     },
-    minify: true,
-    external: externals,
+    minify: false, // Disable minification to see better stack traces if it fails again
+    external: ["pg-native", ...externals],
     logLevel: "info",
   });
 }

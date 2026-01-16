@@ -2,25 +2,39 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Express } from "express";
 import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User } from "@shared/schema";
 
+const PostgresSessionStore = connectPg(session);
 const scryptAsync = promisify(scrypt);
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    interface User extends UserRecord {}
   }
 }
+
+type UserRecord = User;
 
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "r8q2+fr9l-q34tq3t554th5",
     resave: false,
     saveUninitialized: false,
-    store: storage.sessionStore,
+    store: new PostgresSessionStore({
+      pool,
+      tableName: "session",
+    }),
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure: true,
+      sameSite: "none",
+      httpOnly: true,
+    },
   };
 
   if (app.get("env") === "production") {
@@ -87,6 +101,7 @@ export function setupAuth(app: Express) {
 
       const user = await storage.createUser({
         username: req.body.username,
+        password: req.body.password,
         role: "user" // Default role
       });
 

@@ -7,8 +7,9 @@ import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(), // Will map to Replit Auth username
-  role: text("role").default("user").notNull(), // 'user' or 'admin'
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  role: text("role").default("user").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -66,6 +67,13 @@ export const withdrawalRequests = pgTable("withdrawal_requests", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Session table for connect-pg-simple
+export const sessions = pgTable("session", {
+  sid: text("sid").primaryKey(),
+  sess: text("sess").notNull(),
+  expire: timestamp("expire").notNull(),
+});
+
 // === RELATIONS ===
 
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -95,13 +103,15 @@ export const investmentsRelations = relations(investments, ({ one }) => ({
 
 // === SCHEMAS ===
 
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
+}).omit({ id: true, createdAt: true });
 export const insertWalletSchema = createInsertSchema(wallets).omit({ id: true, createdAt: true });
 export const insertBalanceSchema = createInsertSchema(balances).omit({ id: true });
 export const insertInvestmentPlanSchema = createInsertSchema(investmentPlans).omit({ id: true });
-export const insertInvestmentSchema = createInsertSchema(investments).omit({ id: true, startDate: true, endDate: true, status: true });
+export const insertInvestmentSchema = createInsertSchema(investments).omit({ id: true, startDate: true, endDate: true });
 export const insertTransactionSchema = createInsertSchema(transactions).omit({ id: true, createdAt: true });
-export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests).omit({ id: true, status: true, txHash: true, createdAt: true });
+export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests).omit({ id: true, txHash: true, createdAt: true });
 
 // === TYPES ===
 
@@ -117,3 +127,4 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertWallet = z.infer<typeof insertWalletSchema>;
 export type InsertInvestment = z.infer<typeof insertInvestmentSchema>;
 export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;

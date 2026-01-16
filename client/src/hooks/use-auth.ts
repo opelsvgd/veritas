@@ -5,10 +5,18 @@ export function useUser() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: [api.me.path],
     queryFn: async () => {
-      const res = await fetch(api.me.path);
+      const baseUrl = "https://veritas-9pwj.onrender.com";
+      const res = await fetch(`${baseUrl}/api/me`, {
+        credentials: "include"
+      });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch user");
-      return api.me.responses[200].parse(await res.json());
+      const user = await res.json();
+      // Ensure we redirect if authenticated
+      if (user && window.location.pathname === "/auth") {
+        window.location.href = "/";
+      }
+      return user;
     },
     retry: false,
   });

@@ -7,6 +7,9 @@ This is a full-stack JavaScript application built with Express on the backend an
 - Migrated project structure to Replit environment (January 2026).
 - Verified local development server functionality on port 5000.
 - Documented external deployment architecture.
+- Fixed 'MemoryStore is not designed for a production environment' by switching to `connect-pg-simple` for session persistence.
+- Configured secure production-ready session cookies.
+- Added `session` table to schema to support `connect-pg-simple` on Supabase.
 
 ## Deployment Details
 - **Backend**: Render
