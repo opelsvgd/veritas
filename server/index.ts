@@ -51,14 +51,16 @@ app.set("trust proxy", 1);
 app.use(cors({
   origin: (origin, callback) => {
     // Check if the origin is in our allowed list or if it's a local/non-browser request
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development") {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
       callback(null, true);
     } else {
       console.log(`Blocked by CORS: ${origin}`);
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
 
 export function log(message: string, source = "express") {
