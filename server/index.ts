@@ -51,7 +51,8 @@ app.set("trust proxy", 1);
 app.use(cors({
   origin: (origin, callback) => {
     // Check if the origin is in our allowed list or if it's a local/non-browser request
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
+    // Also allow Vercel origins dynamically if needed
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app") || process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
       callback(null, true);
     } else {
       console.log(`Blocked by CORS: ${origin}`);
