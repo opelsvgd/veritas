@@ -52,7 +52,7 @@ app.use(cors({
   origin: (origin, callback) => {
     // Check if the origin is in our allowed list or if it's a local/non-browser request
     // Also allow Vercel origins dynamically if needed
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app") || process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
+    if (!origin || allowedOrigins.includes(origin) || origin.includes("vercel.app") || process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
       callback(null, true);
     } else {
       console.log(`Blocked by CORS: ${origin}`);
@@ -61,7 +61,8 @@ app.use(cors({
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Cookie"],
+  exposedHeaders: ["Set-Cookie"]
 }));
 
 export function log(message: string, source = "express") {

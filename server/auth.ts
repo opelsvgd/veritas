@@ -34,7 +34,7 @@ export function setupAuth(app: Express) {
       secure: true,
       sameSite: "none",
       httpOnly: true,
-      domain: "veritas-9pwj.onrender.com" // Set to explicit backend domain
+      // domain: "veritas-9pwj.onrender.com" // Commenting out to allow default cross-site behavior
     },
   };
 
