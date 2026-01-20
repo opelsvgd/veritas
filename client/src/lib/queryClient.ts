@@ -12,10 +12,7 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const baseUrl = "https://veritas-9pwj.onrender.com";
-  const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
-  
-  const res = await fetch(fullUrl, {
+  const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -32,11 +29,9 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const baseUrl = "https://veritas-9pwj.onrender.com";
     const url = (typeof queryKey[0] === 'string' && queryKey[0].startsWith("/") ? queryKey[0] : `/${queryKey[0]}`) as string;
-    const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
 
-    const res = await fetch(fullUrl, {
+    const res = await fetch(url, {
       credentials: "include",
     });
 
