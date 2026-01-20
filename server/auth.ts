@@ -34,6 +34,7 @@ export function setupAuth(app: Express) {
       secure: true,
       sameSite: "none",
       httpOnly: true,
+      domain: ".onrender.com" // Update this to match your backend domain or leave as undefined for automatic
     },
   };
 

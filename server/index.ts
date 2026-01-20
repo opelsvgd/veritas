@@ -46,6 +46,8 @@ const allowedOrigins = [
   "https://veritas-replit.replit.app"
 ].filter(Boolean) as string[];
 
+app.set("trust proxy", 1);
+
 app.use(cors({
   origin: (origin, callback) => {
     // Check if the origin is in our allowed list or if it's a local/non-browser request
