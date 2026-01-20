@@ -5,7 +5,8 @@ export function useUser() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: [api.me.path],
     queryFn: async () => {
-      const res = await fetch(`/api/me`, {
+      const baseUrl = "https://veritas-9pwj.onrender.com";
+      const res = await fetch(`${baseUrl}/api/me`, {
         credentials: "include"
       });
       if (res.status === 401) return null;
